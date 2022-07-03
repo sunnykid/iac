@@ -1,0 +1,31 @@
+import boto3
+
+
+def lambda_handler(event, context):
+    # TODO implement
+    access_key='액세스키'
+    secret_access_key='시크릿액세스키h'
+    
+    region='ap-northeast-2'
+
+
+    ec2 = boto3.resource('ec2',aws_access_key_id=access_key,aws_secret_access_key=secret_access_key,region_name=region)
+
+#    for instance in ec2.instances.all():    
+#        print(instance.id)
+ 
+    filters=[{
+        'Name':'tag:AutoStartup',
+        'Values':['True']
+        },
+        {
+            'Name':'instance-state-name',
+            'Values':['stopped']
+    }]   
+
+    instances = ec2.instances.filter(Filters=filters)
+    StoppedInstances = [instance.id for instance in instances]
+    
+    if len(StoppedInstances) > 0:
+        StartInstances = ec2.instances.filter(InstanceIds=StoppedInstances).start()
+        print(StartInstances)
